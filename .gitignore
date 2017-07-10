@@ -1,0 +1,10 @@
+*.py[co~]
+*.db
+*.shelf
+.ipynb_checkpoints/
+cache/
+rdf-timing
+*.h5
+*.csv
+*.tsv
+*.gff
