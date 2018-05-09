@@ -26,6 +26,7 @@ with
            payload->>'accession' as Library_Accession,
            payload->>'date_created' as Library_Created,
            payload->>'biosample' as Biosample,
+           payload->>'spikeins_used' as spikeins,
            substring(jsonb_array_elements_text(payload->'aliases') from 'barbara-wold:([0-9_A-Z]+)') as library_id
     from item
     where object_type = 'Library'
@@ -56,6 +57,7 @@ select distinct
   --experiment.Experiment_Released,
   --replicate.Replicate,
   library.Library,
+  spikeins,
   experiment.Experiment_Description
 from experiment
      left join award on experiment.Award = award.Award
