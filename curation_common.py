@@ -26,21 +26,21 @@ if not 'DJANGO_SETTINGS_MODULE' in os.environ:
 
 ipython = get_ipython()
 
-ipython.magic('load_ext rdfmagic')
-ipython.magic('%addns htsw http://jumpgate.caltech.edu/wiki/LibraryOntology#')
-ipython.magic('%addns library http://jumpgate.caltech.edu/library/')
-ipython.magic('%addns flowcell http://jumpgate.caltech.edu/flowcell/')
-
-ipython.magic('%addns biosample https://www.encodeproject.org/profiles/Biosample.json#')
-ipython.magic('%addns experiment https://www.encodeproject.org/profiles/Experiment.json#')
-ipython.magic('%addns library https://www.encodeproject.org/profiles/Library.json#')
-ipython.magic('%addns platform https://www.encodeproject.org/profiles/Platform.json#')
-ipython.magic('%addns replicate https://www.encodeproject.org/profiles/Replicate.json#')
-ipython.magic('%addns file https://www.encodeproject.org/profiles/File.json#')
-
-ipython.magic('%addns experiments https://www.encodeproject.org/experiments/')
-ipython.magic('%addns libraries https://www.encodeproject.org/libraries/')
-ipython.magic('%addns files https://www.encodeproject.org/files/')
+#ipython.magic('load_ext rdfmagic')
+#ipython.magic('%addns htsw http://jumpgate.caltech.edu/wiki/LibraryOntology#')
+#ipython.magic('%addns library http://jumpgate.caltech.edu/library/')
+#ipython.magic('%addns flowcell http://jumpgate.caltech.edu/flowcell/')
+#
+#ipython.magic('%addns biosample https://www.encodeproject.org/profiles/Biosample.json#')
+#ipython.magic('%addns experiment https://www.encodeproject.org/profiles/Experiment.json#')
+#ipython.magic('%addns library https://www.encodeproject.org/profiles/Library.json#')
+#ipython.magic('%addns platform https://www.encodeproject.org/profiles/Platform.json#')
+#ipython.magic('%addns replicate https://www.encodeproject.org/profiles/Replicate.json#')
+#ipython.magic('%addns file https://www.encodeproject.org/profiles/File.json#')
+#
+#ipython.magic('%addns experiments https://www.encodeproject.org/experiments/')
+#ipython.magic('%addns libraries https://www.encodeproject.org/libraries/')
+#ipython.magic('%addns files https://www.encodeproject.org/files/')
 
 def build_geneid_to_gene_from_gtf(gencode):
     """Build a dictionary mapping from gene_id to gene_name.
