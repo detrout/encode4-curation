@@ -10,9 +10,5 @@ rdf-timing
 *.tsv
 *.gff
 # Ignore cache files created by determinations_histogram.ipynb
-human-by-lab.png
-human-by-project.png
 human_determinations.pkl
-mouse-by-lab.png
-mouse-by-project.png
 mouse_determinations.pkl
