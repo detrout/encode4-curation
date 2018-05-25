@@ -1,37 +1,20 @@
-import pandas
-import numpy
-import os
+import logging
 
 from bokeh.layouts import row, column, widgetbox, Spacer
 from bokeh.models import ColumnDataSource, HoverTool
-from bokeh.plotting import figure, curdoc, output_file, show
-from bokeh import palettes
+from bokeh.plotting import figure
 from bokeh.models.widgets import Select, Div, Paragraph
 from bokeh.models.callbacks import CustomJS
+import numpy
+import pandas
 
+#from data import (
+#    annotations,
+#    experiments,
+#    quantifications,
+#)
 
-def load_annotation():
-    gtf = pandas.HDFStore(os.path.expanduser('~/proj/genome/GRCh38-V24-male/gencode.vV24-tRNAs-ERCC.h5'), mode='r')
-    grch38 = gtf['/GRCh38_v24']
-    genes = grch38[(grch38['type'] == 'gene') | (grch38['source'] == 'spikein') | (grch38['gene_type'] == 'tRNAscan')]
-    genes.set_index('gene_id', inplace=True)
-    gtf.close()
-    return genes
-
-
-def load_quantifications(store, experiments, name='FPKM'):
-    download_url = 'https://www.encodeproject.org/files/{accession}/@@download/{accession}.tsv'
-    quantifications = []
-    for accession, experiment in experiments.iterrows():
-        file_accession = experiment['gene_quantification']
-        path = '/gene_quantifications/{accession}'.format(accession=file_accession)
-        if path not in store:
-            store[path] = pandas.read_csv(download_url.format(accession=file_accession), sep='\t', index_col=0)
-        q = store[path][name]
-        q.name = file_accession
-        quantifications.append(q)
-    return pandas.DataFrame({x.name: x for x in quantifications})
-
+logger = logging.getLogger(__name__)
 
 def get_experiment_from_file(experiments, rep):
     return experiments[experiments['gene_quantification'] == rep].iloc[0]
@@ -53,7 +36,7 @@ def from_description(text):
     return rep
 
 
-def display_event(div, source, plot, scatter, attributes=[], style = 'float:left;clear:left;font_size=10pt'):
+def display_event(div, source, plot, scatter, attributes=[], style='float:left;clear:left;font_size=10pt'):
     "Build a suitable CustomJS to display the current event in the div model."
     return CustomJS(args=dict(div=div, source=source, plot=plot, scatter=scatter), code="""
 var attrs = %s; var args = [];
@@ -83,10 +66,9 @@ source.change.emit();
 class Evaluation:
     LINE_ARGS = dict(color="#3A5785", line_color=None)
 
-    def __init__(self, experiments, quantifications, annotations, bins=30):
+    def __init__(self, experiments, data, bins=30):
         self.experiments = experiments
-        self.quantifications = quantifications
-        self.annotations = annotations
+        self.data = data
         self.bins = bins
         self.hover = HoverTool(tooltips=[
             ('gene_id', '@gene_id'),
@@ -101,41 +83,39 @@ class Evaluation:
         self.figure.add_tools(self.hover)
         self.div = Div(width=1000)
 
-        self.source = ColumnDataSource(
-            self.quantifications.merge(self.annotations, left_index=True, right_index=True))
+        self.source = ColumnDataSource(data)
+#            self.quantifications.merge(self.annotations, left_index=True, right_index=True))
 
         descriptions = [to_description(experiments, x) for x in experiments['gene_quantification']]
         self.x_widget = Select(title='x', value=descriptions[0], options=descriptions)
         self.y_widget = Select(title='y', value=descriptions[1], options=descriptions)
 
-        self.x_widget.on_change('value', self.x_axis_control_changed)
-        self.y_widget.on_change('value', self.y_axis_control_changed)
+        #self.x_widget.on_change('value', self.x_axis_control_changed)
+        #self.y_widget.on_change('value', self.y_axis_control_changed)
 
-        ph = self.make_horizontal_histogram()
-        pv = self.make_vertical_histogram()
-        self.layout = column(widgetbox([self.x_widget, self.y_widget]),
-                             column(row(self.figure, pv), row(ph, Spacer(width=200, height=200))))
-        #self.layout = column(widgetbox([self.x_widget, self.y_widget]), row(self.figure, self.div))
-        self.update_plot(self.x, self.y)
+        #ph = self.make_horizontal_histogram()
+        #pv = self.make_vertical_histogram()
+        #self.layout = column(widgetbox([self.x_widget, self.y_widget]),
+        #                     column(row(self.figure, pv), row(ph, Spacer(width=200, height=200))))
 
-
-    def update_plot(self, x, y):
         self.figure = figure(plot_width=600, plot_height=600)
         self.figure.add_tools(self.hover)
         self.scatter = self.figure.circle(self.x, self.y, color='color', source=self.source)
         self.figure.xaxis.axis_label = self.x_widget.value
         self.figure.yaxis.axis_label = self.y_widget.value
-        self.layout.children[1].children[0] = self.figure
+        #self.layout.children[1].children[0] = self.figure
         #self.layout.children[1].children[0].children[0] = self.figure
+
+        self.layout = column(widgetbox([self.x_widget, self.y_widget]), row(self.figure, self.div))
 
     def x_axis_control_changed(self, attr, new, old):
         return self.axis_control_changed('x', attr, new, old)
 
     def y_axis_control_changed(self, attr, new, old):
         return self.axis_control_changed('y', attr, new, old)
-    
+
     def axis_control_changed(self, axis, attr, new, old):
-        print(axis, attr, new, old)
+        logger.info(axis, 'axis changing', attr, new, old)
         accession = from_description(new)
         if axis == 'x':
             x = accession
@@ -145,7 +125,8 @@ class Evaluation:
             y = accession
         else:
             raise ValueError('Unrecognized axis {}'.format(axis))
-        self.update_plot(x, y)
+        print(x, y)
+        #self.update_plot(x, y)
 
     def make_horizontal_histogram(self):
         x = self.x
@@ -218,29 +199,19 @@ class Evaluation:
         return from_description(self.y_widget.value)
 
 
-print('loading quantifications')
+logger.info('read data')
 store = pandas.HDFStore('evaluation.h5', 'r')
 experiments = store['/experiments']
-quantifications = load_quantifications(store, experiments)
-quantifications = numpy.log2(quantifications[quantifications.sum(axis=1) != 0] + .00001)
+plot_data = store['/rna_evaluation_data']
 store.close()
+logger.info('loaded')
+E = Evaluation(experiments, plot_data)
 
-print('Loading annotations')
-if True:
-    genes = load_annotation()
-    genes.loc[genes['source'] == 'spikein', 'color'] = palettes.Reds3[0]
-    genes.fillna(palettes.Blues3[0], inplace=True)
-    genes['gene_name'].fillna('', inplace=True)
-else:
-    genes = pandas.DataFrame(index=quantifications.index)
-    genes.loc[-98:, 'color'] = palettes.Reds3[0]
-    genes.fillna(palettes.Blues3[0], inplace=True)
-
-E = Evaluation(experiments, quantifications, genes)
-
+from bokeh.plotting import curdoc
 curdoc().add_root(Paragraph(text="FPKMs from ENCODE RNA-seq evaluation"))
 curdoc().add_root(E.layout)
 curdoc().title = "Compare RNA-seq evalation datasets"
 
+#from bokeh.plotting import output_file, show
 #output_file('evaluation_plot.html')
 #show(E.layout)
