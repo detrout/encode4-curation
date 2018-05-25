@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Complete Example</title>
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.css" type="text/css" />
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.css" type="text/css" />
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.15.min.css" type="text/css" />
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-0.12.15.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.15.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-gl-0.12.15.min.js"></script>
+<script type="text/javascript" src="rna_plot.js"></script>
+<!-- The order of CSS and JS imports above is important. -->
+</head>
+
+<body>
+  <div id="plot" class="bk-root">
+  </div>
+  <script type="text/javascript">
+    var p = {plot: undefined};
+    if (document != "loading") new Plot(p);
+    else document.addEventListener("DOMContentLoaded", new Plot(p));
+  </script>
+</body>
+</html>
