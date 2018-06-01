@@ -38,18 +38,19 @@ def from_description(text):
 
 def display_event(div, source, plot, scatter, attributes=[], style='float:left;clear:left;font_size=10pt'):
     "Build a suitable CustomJS to display the current event in the div model."
-    return CustomJS(args=dict(div=div, source=source, plot=plot, scatter=scatter), code="""
+    return CustomJS(args=dict(div=div, scatter=scatter), code="""
 var attrs = %s; var args = [];
 //for (var i = 0; i<attrs.length; i++) {
 //    args.push(attrs[i] + '=' + cb_obj[attrs[i]]);
 //}
 // args.push(source);
 // args.push(plot);
-var o = plot;
-for (var key in o) {
-    var x = o[key];
-    args.push(key + ": " + x);
-}
+//var o = plot;
+//for (var key in o) {
+//    var x = o[key];
+//    args.push(key + ": " + x);
+//}
+args.push(scatter.y);
 var line = "<span style=%r><b>" + o + " " + "</b>(" + args.join("<br/>") + ")</span>\\n";
 // var text = div.text.concat(line);
 //var lines = text.split("\\n")
@@ -57,9 +58,7 @@ var line = "<span style=%r><b>" + o + " " + "</b>(" + args.join("<br/>") + ")</s
 //    lines.shift();
 //div.text = lines.join("\\n");
 div.text = line;
-scatter.glyph.attributes.y = scatter.glyph.attributes.x;
-console.log(scatter.glyph.attributes.y);
-source.change.emit();
+//scatter.y = scatter.x;
     """ % (attributes, style))
 
 
