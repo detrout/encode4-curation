@@ -1,3 +1,4 @@
+from pathlib import Path
 import os
 import gzip
 import sys
@@ -11,9 +12,12 @@ logger = logging.getLogger(__name__)
 
 # maybe we should just install htsworkflow
 def custom_paths():
-    paths = [ os.path.expanduser('~/proj/htsworkflow'),
+    paths = [
+        Path('~/proj/htsworkflow').expanduser(),
+        Path('~/proj/encoded_client').expanduser(),
               ]
     for p in paths:
+        p = str(p)
         if p not in sys.path:
             sys.path.append(p)
 custom_paths()
