@@ -18,8 +18,8 @@ def custom_paths():
             sys.path.append(p)
 custom_paths()
 
-from htsworkflow.submission.encoded import ENCODED
-from htsworkflow.util.rdfhelp import dump_model, load_into_model
+from encoded_client.encoded import ENCODED
+from encoded_client.rdfhelp import dump_model, load_into_model
 
 if not 'DJANGO_SETTINGS_MODULE' in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'htsworkflow.settings.myrada'
